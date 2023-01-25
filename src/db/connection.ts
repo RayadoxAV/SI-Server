@@ -1,8 +1,13 @@
-import { Connection, createConnection, MysqlError } from 'mysql';
-import Logger, { LogType } from '../util/logger';
+import { createPool, Pool } from 'mysql';
 
-function connect(): Connection {
-  const connection = createConnection({
+
+let connection: any;
+
+let intervalID: NodeJS.Timer;
+
+function connect(): void {
+  connection = createPool({
+    connectionLimit: 10,
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -10,23 +15,42 @@ function connect(): Connection {
   });
 
   connection.on('connection', (_: any) => {
-    Logger.log('Database: Connection successful', LogType.SUCCESS);
+    console.log('Database - Info: Connection succesful');
   });
 
-  connection.on('error', (error: any) => {
-    Logger.log(`Database: ${error}`, LogType.ERROR);
+  function keepAlive() {
+    connection.getConnection((error: any, conn: any) => {
+      if (error) {
+        console.log('Database - Error: ', error.code);
+        // switch (error.code) {
+        //   case 'PROTOCOL_CONNECTION_LOST': {
+        //     console.log('protocol_conn_lost');
+        //     break;
+        //   }
+        //   case 'ECONNRESET': {
+        //     console.log('econnreset');
+        //     break;
+        //   }
+        //   case 'ECONNREFUSED': {
+        //     console.log('econnrefused');
+        //     break;
+        //   }
+        //   default: {
+        //     console.log(error.code);
+        //     break;
+        //   }
+        // }
+        return;
+      }
+      conn.ping();
+      conn.release();
+    });
+  }
 
-    if (error.code === 'PROTOCOL_CONNECTION_LOST') {
-      connect();
-    } else if (error.code === 'ECONNRESET') {
-      connect();
-    } else {
-      throw new Error(`Database: ${error.message} - ${error.code}`);
-    }
-  });
+  intervalID = setInterval(keepAlive, 5000);
 
-  return connection;
 }
 
-export const connection = connect();
+connect();
 
+export default connection;

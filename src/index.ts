@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
 dotenv.config();
 
 import express from 'express';
 
+import connection from './db/connection';
 import CustomServer from './server/server';
 import router from './routes/router';
 

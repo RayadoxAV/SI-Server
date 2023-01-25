@@ -3,15 +3,14 @@ import { format, MysqlError } from 'mysql';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { connection } from '../db/connection';
+import connection from '../db/connection';
 import { User } from '../data/user';
 
 const login = express();
 
 login.post('/login', (request: Request, response: Response) => {
   const { identifier, password, loginType } = request.body;
-
-  if (!identifier || !password || !loginType) {
+  if (!identifier || !password || loginType == undefined) {
     return response.status(400).json({
       requestStatus: 'ERROR',
       loginStatusCode: 1,
@@ -20,7 +19,7 @@ login.post('/login', (request: Request, response: Response) => {
       }
     });
   }
-  const table = loginType === 0 ? 'usuarios' : 'estudiantes';
+  const table = loginType === 0 ? 'usuarios' : 'alumnos';
   const parameter = loginType === 0 ? 'nombreUsuario' : 'email';
 
   const query = format(`SELECT * FROM \`${table}\` WHERE \`${parameter}\` = ? `, [identifier]);
@@ -35,6 +34,43 @@ login.post('/login', (request: Request, response: Response) => {
         }
       });
     }
+
+    if (result.length < 1) {
+      return response.status(200).json({
+        requestStatus: 'SUCCESS',
+        loginStatusCode: 1
+      });
+    }
+
+    const passwordComparison = await bcrypt.compare(password, result[0].password);
+  
+    if (!passwordComparison) {
+      return response.status(200).json({
+        requestStatus: 'SUCCESS',
+        loginStatusCode: 1
+      });
+    } 
+
+    const user: User = {
+      idUsuario: result[0].idUsuario,
+      nombreUsuario: result[0].nombreUsuario,
+      nombres: result[0].nombres,
+      pApellido: result[0].pApellido,
+      sApellido: result[0].sApellido,
+      role: result[0].role,
+      state: result[0].state
+    };
+
+    const token = jwt.sign({
+      user
+    }, process.env.SEED!!, { expiresIn: process.env.TOKEN_EXPIRATION!! })
+
+    return response.status(200).json({
+      requestStatus: 'SUCCESS',
+      loginStatusCode: 0,
+      user,
+      token
+    });
   });
 });
 
@@ -66,19 +102,17 @@ login.post('/confirm_code', async (request: Request, response: Response) => {
       });
     }
 
-    if (result.length < 1) {
-      return response.status(200).json({
-        requestStatus: 'SUCCESS',
-        loginStatusCode: 1
-      });
-    }
-
     const codeComparison = await bcrypt.compare(code, result[0].codigo);
 
     if (!codeComparison) {
       return response.status(200).json({
         requestStatus: 'SUCCESS',
-        loginStatusCode: 1
+        loginStatusCode: 1,
+        error: {
+          message: 'Invalid access code',
+          code: 200,
+          type: 'extern'
+        }
       });
     }
 

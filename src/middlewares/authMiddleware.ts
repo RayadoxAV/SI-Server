@@ -17,7 +17,7 @@ export const verifyLoggedIn = (request: Request, response: Response, nextFunctio
           }
         });
       }
-      
+
       nextFunction();
     });
   } else {
@@ -30,9 +30,71 @@ export const verifyLoggedIn = (request: Request, response: Response, nextFunctio
   }
 };
 
+export const verifyUser = (request: Request, response: Response, nextFunction: NextFunction) => {
+  const bearerHeader = request.headers['authorization'];
+
+  const bearerToken = bearerHeader?.split(' ')[1];
+
+  if (bearerToken) {
+    const payload: any = jwt.decode(bearerToken);
+
+    if (!payload.user) {
+      return response.status(403).json({
+        requestStatus: 'ERROR',
+        error: {
+          message: 'Unauthorized'
+        }
+      });
+    }
+
+    if (payload.user.role < 5 && payload.user.state === 1) {
+      nextFunction();
+    } else {
+      return response.status(403).json({
+        requestStatus: 'ERROR',
+        error: {
+          message: 'Unauthorized'
+        }
+      });
+    }
+  }
+};
+
+export const verifyAdmin = (request: Request, response: Response, nextFunction: NextFunction) => {
+  const bearerHeader = request.headers['authorization'];
+
+  const bearerToken = bearerHeader?.split(' ')[1];
+
+  if (bearerToken) {
+    const payload: any = jwt.decode(bearerToken);
+
+    if (payload) {
+      const user: User = payload.user;
+
+      if (user.role === 0) {
+        nextFunction();
+      } else {
+        return response.status(403).json({
+          requestStatus: 'ERROR',
+          error: {
+            message: 'Unauthorized'
+          }
+        });
+      }
+    } else {
+      return response.status(401).json({
+        requestStatus: 'ERROR',
+        error: {
+          message: 'Invalid token'
+        }
+      });
+    }
+  }
+};
+
 export const verifyRole = (request: Request, response: Response, nextFunction: NextFunction) => {
   const bearerHeader = request.headers['authorization'];
-  
+
   const bearerToken = bearerHeader?.split(' ')[1];
 
   if (bearerToken) {

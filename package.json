@@ -1,5 +1,5 @@
 {
-  "name": "sibserver",
+  "name": "sib-server",
   "version": "0.0.1",
   "description": "The Backend Server for SIB",
   "main": "index.js",
