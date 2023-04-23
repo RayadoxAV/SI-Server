@@ -42,6 +42,13 @@ login.post('/login', (request: Request, response: Response) => {
       });
     }
 
+    if (result[0].estado === 1) {
+      return response.status(200).json({
+        requestStatus: 'SUCCESS',
+        loginStatusCode: 1
+      });
+    }
+
     const passwordComparison = await bcrypt.compare(password, result[0].password);
   
     if (!passwordComparison) {
@@ -58,7 +65,7 @@ login.post('/login', (request: Request, response: Response) => {
       pApellido: result[0].pApellido,
       sApellido: result[0].sApellido,
       role: result[0].role,
-      state: result[0].state
+      estado: result[0].estado
     };
 
     const token = jwt.sign({
@@ -123,7 +130,7 @@ login.post('/confirm_code', async (request: Request, response: Response) => {
       pApellido: '',
       sApellido: '',
       role: 10,
-      state: true
+      estado: 0
     };
 
     const token = jwt.sign({

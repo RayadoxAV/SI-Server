@@ -13,7 +13,7 @@ export const verifyLoggedIn = (request: Request, response: Response, nextFunctio
         return response.status(401).json({
           requestStatus: 'ERROR',
           error: {
-            mesage: 'Invalid token'
+            message: 'Invalid token'
           }
         });
       }
@@ -47,7 +47,7 @@ export const verifyUser = (request: Request, response: Response, nextFunction: N
       });
     }
 
-    if (payload.user.role < 5 && payload.user.state === 1) {
+    if (payload.user.role < 5 && payload.user.estado == 0) {
       nextFunction();
     } else {
       return response.status(403).json({
@@ -71,7 +71,7 @@ export const verifyAdmin = (request: Request, response: Response, nextFunction: 
     if (payload) {
       const user: User = payload.user;
 
-      if (user.role === 0) {
+      if ((user.role === 0 || user.role === 1) && payload.user.estado == 0) {
         nextFunction();
       } else {
         return response.status(403).json({
@@ -102,7 +102,7 @@ export const verifyRole = (request: Request, response: Response, nextFunction: N
     if (payload) {
       const user: User = payload.user;
       const role: number = request.body.declaredRole;
-      if (user.role === role) {
+      if (user.role === role && user.estado) {
         nextFunction();
       } else {
         return response.status(403).json({

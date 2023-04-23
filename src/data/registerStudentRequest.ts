@@ -11,7 +11,6 @@ export interface RegisterStudentRequestBody {
   localidad: string,
   grado: number,
   grupo: string,
-  promedio: number,
   cantidadMiembros: string,
   miembrosFamilia: [Object],
   tipoFamilia: string,
@@ -48,7 +47,6 @@ export function instanceOfRegisterStudentRequestBody(object: any): object is Reg
   'localidad' in object &&
   'grado' in object &&
   'grupo' in object &&
-  'promedio' in object &&
   'cantidadMiembros' in object &&
   'miembrosFamilia' in object &&
   'tipoFamilia' in object &&

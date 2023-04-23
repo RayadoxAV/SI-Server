@@ -1,5 +1,5 @@
 import { createPool, Pool } from 'mysql';
-
+import { promisify } from 'util';
 
 let connection: any;
 
@@ -13,6 +13,8 @@ function connect(): void {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
   });
+
+  connection.query = promisify(connection.query);
 
   connection.on('connection', (_: any) => {
     console.log('Database - Info: Connection succesful');

@@ -1,10 +1,12 @@
 export interface Student {
-  idAlumno: number,
-  matricula: string,
-  email: string,
-  nombres: string,
-  pApellido: string,
-  sApellido: string,
-  estado: number,
-  data: Object
+  id: number;
+  matricula: string;
+  nombres: string;
+  pApellido: string;
+  sApellido: string;
+  fechaNac: string;
+  CURP: string;
+  telefono: string;
+  informacion: object;
+  estado: number;
 };
