@@ -5,6 +5,7 @@ export interface RegisterStudentRequestBody {
   sApellido: string,
   fechaNac: string,
   curp: string,
+  password: string,
   telefono: string,
   direccion: string,
   colonia: string,
@@ -41,6 +42,7 @@ export function instanceOfRegisterStudentRequestBody(object: any): object is Reg
   'sApellido' in object &&
   'fechaNac' in object &&
   'curp' in object &&
+  'password' in object &&
   'telefono' in object &&
   'direccion' in object &&
   'colonia' in object &&

@@ -37,7 +37,6 @@ export const verifyUser = (request: Request, response: Response, nextFunction: N
 
   if (bearerToken) {
     const payload: any = jwt.decode(bearerToken);
-
     if (!payload.user) {
       return response.status(403).json({
         requestStatus: 'ERROR',
@@ -47,7 +46,7 @@ export const verifyUser = (request: Request, response: Response, nextFunction: N
       });
     }
 
-    if (payload.user.role < 5 && payload.user.estado == 0) {
+    if (payload.user.role < 5 && payload.user.status == 0) {
       nextFunction();
     } else {
       return response.status(403).json({
@@ -71,7 +70,7 @@ export const verifyAdmin = (request: Request, response: Response, nextFunction: 
     if (payload) {
       const user: User = payload.user;
 
-      if ((user.role === 0 || user.role === 1) && payload.user.estado == 0) {
+      if ((user.role === 0 || user.role === 1) && payload.user.status == 0) {
         nextFunction();
       } else {
         return response.status(403).json({
@@ -102,7 +101,7 @@ export const verifyRole = (request: Request, response: Response, nextFunction: N
     if (payload) {
       const user: User = payload.user;
       const role: number = request.body.declaredRole;
-      if (user.role === role && user.estado) {
+      if (user.role === role && user.status) {
         nextFunction();
       } else {
         return response.status(403).json({

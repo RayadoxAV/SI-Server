@@ -7,6 +7,6 @@ export interface Student {
   fechaNac: string;
   CURP: string;
   telefono: string;
-  informacion: object;
+  informacion: any;
   estado: number;
 };

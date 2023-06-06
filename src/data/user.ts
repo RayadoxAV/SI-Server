@@ -5,5 +5,5 @@ export interface User {
   pApellido: string,
   sApellido: string,
   role: number,
-  estado: number
+  status: number
 };

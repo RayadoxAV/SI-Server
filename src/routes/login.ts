@@ -65,7 +65,7 @@ login.post('/login', (request: Request, response: Response) => {
       pApellido: result[0].pApellido,
       sApellido: result[0].sApellido,
       role: result[0].role,
-      estado: result[0].estado
+      status: result[0].status
     };
 
     const token = jwt.sign({
@@ -130,7 +130,7 @@ login.post('/confirm_code', async (request: Request, response: Response) => {
       pApellido: '',
       sApellido: '',
       role: 10,
-      estado: 0
+      status: 0
     };
 
     const token = jwt.sign({

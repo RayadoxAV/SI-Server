@@ -11,11 +11,11 @@ import controls from './controls';
 const router = express();
 router.use(login);
 
-// router.use(students);
-// router.use(controls);
-// router.use(documents);
-// router.use(users);
-// router.use(misc);
+router.use(students);
+router.use(controls);
+router.use(documents);
+router.use(users);
+router.use(misc);
 
 router.get('/', (request: Request, response: Response) => {
   response.status(200).json({

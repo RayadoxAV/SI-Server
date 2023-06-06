@@ -1,18 +1,19 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import readline from 'readline';
 import express, { NextFunction, Request, Response } from 'express';
-
 import CustomServer from './server/server';
 import router from './routes/router';
 import cors from 'cors';
 
+
 import Logger, { LogType} from './util/logger';
+import { commandManager } from './util/commandManager';
 
 function start(): void {
   Logger.log('Initializing server...', LogType.INFO);
   const server = CustomServer.instance;
-
   server.app.use(express.urlencoded({ extended: true }));
   server.app.use(express.json());
 
@@ -35,10 +36,18 @@ function start(): void {
 
   server.app.use(router);
 
-  server.startServer(() => {
-    Logger.log('Server successfully initialized', LogType.SUCCESS);
+  const readLineInterface = readline.createInterface({
+    input: process.stdin
   });
 
+
+  server.startServer(() => {
+    Logger.log('Server successfully initialized', LogType.SUCCESS);
+
+    readLineInterface.on('line', commandManager);
+
+  });
 }
+
 
 start();

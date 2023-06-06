@@ -1,0 +1,7 @@
+SIB Server
+Version: {version}
+Status: {status}
+Users: {users}
+Students: {students}
+Documents: {documents}
+Controls: {controls}
