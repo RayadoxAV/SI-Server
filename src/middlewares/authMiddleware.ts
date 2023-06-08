@@ -69,7 +69,6 @@ export const verifyAdmin = (request: Request, response: Response, nextFunction: 
 
     if (payload) {
       const user: User = payload.user;
-
       if ((user.role === 0 || user.role === 1) && payload.user.status == 0) {
         nextFunction();
       } else {

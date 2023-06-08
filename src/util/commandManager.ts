@@ -14,7 +14,7 @@ export async function commandManager(input: string) {
     'users': `\n\tQuantity: ${CustomServer.instance.getUsers().length}\n\tData: ${JSON.stringify(CustomServer.instance.getUsers())}`,
     'students': `\n\tQuantity: ${CustomServer.instance.getStudents().length}\n\tData: ${JSON.stringify(CustomServer.instance.getStudents())}`,
     'documents': `\n\tQuantity: ${CustomServer.instance.getDocuments().length}\n\tData: ${JSON.stringify(CustomServer.instance.getDocuments())}`,
-    'controls': `\n\tQuantity: ${CustomServer.instance.getControls().length}\n\tData: ${JSON.stringify(CustomServer.instance.getControls())}`
+    'controls': `\n\tQuantity: ${CustomServer.instance.getControls().length}\n\tData: ${JSON.stringify(CustomServer.instance.getControls())}`,
   };
 
   const command = input.split(' ')[0];

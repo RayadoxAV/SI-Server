@@ -6,6 +6,7 @@ import connection from '../db/connection';
 import { verifyAdmin, verifyLoggedIn } from '../middlewares/authMiddleware';
 import CustomServer from '../server/server';
 import { User } from '../data/user';
+import { EditUserRequestBody, instanceOfEditUserRequestBody } from '../data/editUserRequest';
 
 const users = express();
 
@@ -18,7 +19,7 @@ users.get('/users', verifyLoggedIn, verifyAdmin, (request: Request, response: Re
   // const query = 'SELECT idUsuario, nombreUsuario, nombres, pApellido, sApellido, role, estado FROM usuarios;';
 
   // connection.query(query, async (error: MysqlError, result: any[]) => {
-//   if (error) {
+  //   if (error) {
   //     return response.status(500).json({
   //       requestStatus: 'ERROR',
   //       queryStatusCode: 1,
@@ -160,6 +161,78 @@ users.delete('/user/:id', verifyLoggedIn, verifyAdmin, (request: Request, respon
       });
     }
   });
+});
+
+users.put('/user/:id', verifyLoggedIn, verifyAdmin, async (request: Request, response: Response) => {
+  if (instanceOfEditUserRequestBody(request.body)) {
+    const updatedInformation = request.body as EditUserRequestBody;
+
+    const user = CustomServer.instance.getUserById(Number.parseInt(request.params.id));
+
+    if (user) {
+      const updatedUser = { ...user };
+
+      updatedUser.nombreUsuario = updatedInformation.nombreUsuario;
+      updatedUser.nombres = updatedInformation.nombres;
+      updatedUser.pApellido = updatedInformation.pApellido;
+      updatedUser.sApellido = updatedInformation.sApellido;
+      updatedUser.role = updatedInformation.role;
+      updatedUser.status = updatedInformation.status;
+
+      const query = format('UPDATE usuarios SET nombreUsuario = ?, nombres = ?, pApellido = ?, sApellido = ?, role = ?, status = ? WHERE idUsuario = ?', [updatedUser.nombreUsuario, updatedUser.nombres, updatedUser.pApellido, updatedUser.sApellido, updatedUser.role, updatedUser.status, user.idUsuario]);
+
+      connection.query(query, (error: MysqlError, result: any) => {
+        if (error) {
+          return response.status(500).json({
+            requestStatus: 'ERROR',
+            updateStatusCode: 1,
+            error: {
+              message: 'Internal server error',
+              error: error
+            }
+          });
+        }
+
+        if (result.affectedRows === 1) {
+          const index = CustomServer.instance.getUserIndexById(user.idUsuario);
+          CustomServer.instance.getUsers()[index] = updatedUser;
+
+          CustomServer.instance.ioServer.emit('update-element', { type: 3, list: CustomServer.instance.getUsers() });
+
+          return response.status(200).json({
+            requestStatus: 'SUCCESS',
+            updateStatusCode: 0
+          });
+        } else {
+          return response.status(200).json({
+            requestStatus: 'ERROR',
+            updateStatusCode: 1,
+            error: {
+              message: 'Internal server error'
+            }
+          });
+        }
+      });
+
+    } else {
+      return response.status(400).json({
+        requestStatus: 'ERROR',
+        updateStatusCode: 1,
+        error: {
+          message: 'Invalid request params'
+        }
+      });
+    }
+
+  } else {
+    return response.status(400).json({
+      requestStatus: 'ERROR',
+      updateStatusCode: 1,
+      error: {
+        message: 'Invalid request body'
+      }
+    });
+  }
 });
 
 users.delete('/users/', verifyLoggedIn, verifyAdmin, async (request: Request, response: Response) => {

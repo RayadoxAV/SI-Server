@@ -280,6 +280,30 @@ class CustomServer {
     return user;
   }
 
+  public getUserIndexById(id: number): number {
+    function search(array: User[], id: any, start: number, end: number): number {
+      if (start > end) {
+        return -1;
+      }
+
+      const middle = Math.floor((start + end) / 2);
+
+      if (array[middle].idUsuario == id) {
+        return middle;
+      }
+
+      if (array[middle].idUsuario > id) {
+        return search(array, id, start, middle - 1);
+      } else {
+        return search(array, id, middle + 1, end);
+      }
+    }
+
+    const index = search(this.users, id, 0, this.students.length - 1);
+
+    return index;
+  }
+
   public deleteUserById(id: number): number {
     let i = 0;
     for (i = 0; this.users.length; i++) {
