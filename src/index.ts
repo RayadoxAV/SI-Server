@@ -17,7 +17,7 @@ function start(): void {
   server.app.use(express.urlencoded({ extended: true }));
   server.app.use(express.json());
 
-  server.app.use(cors({ origin: true, credentials: true }));
+  server.app.use(cors({ origin: 'https://secest3024.com', credentials: true }));
 
   server.app.use((error: any, _: Request, response: Response, next: NextFunction) => {
     //@ts-ignore
@@ -44,7 +44,7 @@ function start(): void {
   server.startServer(() => {
     Logger.log('Server successfully initialized', LogType.SUCCESS);
 
-    readLineInterface.on('line', commandManager);
+    // readLineInterface.on('line', commandManager);
 
   });
 }
