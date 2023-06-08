@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import readline from 'readline';
 import express, { NextFunction, Request, Response } from 'express';
 import CustomServer from './server/server';
 import router from './routes/router';
@@ -35,11 +34,6 @@ function start(): void {
   });
 
   server.app.use(router);
-
-  const readLineInterface = readline.createInterface({
-    input: process.stdin
-  });
-
 
   server.startServer(() => {
     Logger.log('Server successfully initialized', LogType.SUCCESS);

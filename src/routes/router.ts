@@ -19,7 +19,8 @@ router.use(misc);
 
 router.get('/', (request: Request, response: Response) => {
   response.status(200).json({
-    requestStatus: 'SUCCESS'
+    requestStatus: 'SUCCESS',
+    version: 1
   });
 });
 
