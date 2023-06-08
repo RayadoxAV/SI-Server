@@ -16,7 +16,7 @@ function start(): void {
   server.app.use(express.urlencoded({ extended: true }));
   server.app.use(express.json());
 
-  server.app.use(cors({ origin: '*', credentials: true }));
+  server.app.use(cors({ origin: true, credentials: true, methods: ['GET', 'POST', 'DELETE', 'PUT'] }));
 
   server.app.use((error: any, _: Request, response: Response, next: NextFunction) => {
     //@ts-ignore
