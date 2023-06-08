@@ -17,6 +17,7 @@ function start(): void {
   server.app.use(express.json());
 
   server.app.use(cors({ origin: true, credentials: true, methods: ['GET', 'POST', 'DELETE', 'PUT'] }));
+  server.app.options('*', cors());
 
   server.app.use((error: any, _: Request, response: Response, next: NextFunction) => {
     //@ts-ignore
