@@ -315,6 +315,14 @@ class CustomServer {
 
     return i;
   }
+
+  public deleteAllStudents() {
+    this.students = [];
+  }
+
+  public deleteAllDocuments() {
+    this.documents = [];
+  }
 }
 
 export default CustomServer;

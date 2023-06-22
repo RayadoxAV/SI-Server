@@ -30,7 +30,7 @@ export const verifyLoggedIn = (request: Request, response: Response, nextFunctio
   }
 };
 
-export const verifyUser = (request: Request, response: Response, nextFunction: NextFunction) => {
+export const verifyTeacher = (request: Request, response: Response, nextFunction: NextFunction) => {
   const bearerHeader = request.headers['authorization'];
 
   const bearerToken = bearerHeader?.split(' ')[1];
@@ -47,6 +47,35 @@ export const verifyUser = (request: Request, response: Response, nextFunction: N
     }
 
     if (payload.user.role < 5 && payload.user.status == 0) {
+      nextFunction();
+    } else {
+      return response.status(403).json({
+        requestStatus: 'ERROR',
+        error: {
+          message: 'Unauthorized'
+        }
+      });
+    }
+  }
+};
+
+export const verifyUser = (request: Request, response: Response, nextFunction: NextFunction) => {
+  const bearerHeader = request.headers['authorization'];
+
+  const bearerToken = bearerHeader?.split(' ')[1];
+
+  if (bearerToken) {
+    const payload: any = jwt.decode(bearerToken);
+    if (!payload.user) {
+      return response.status(403).json({
+        requestStatus: 'ERROR',
+        error: {
+          message: 'Unauthorized'
+        }
+      });
+    }
+
+    if (payload.user.role < 3 && payload.user.status == 0) {
       nextFunction();
     } else {
       return response.status(403).json({

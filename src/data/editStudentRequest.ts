@@ -10,6 +10,7 @@ export interface EditStudentRequestBody {
   localidad: string;
   grado: number;
   grupo: string;
+  estado: string;
 };
 
 export function instanceOfEditStudentRequestBody(object: any): object is EditStudentRequestBody {
@@ -23,5 +24,6 @@ export function instanceOfEditStudentRequestBody(object: any): object is EditStu
   'colonia' in object &&
   'localidad' in object &&
   'grado' in object &&
-  'grupo' in object
+  'grupo' in object &&
+  'estado' in object
 }

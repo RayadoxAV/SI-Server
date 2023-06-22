@@ -5,7 +5,7 @@ import { AddStudentRequestBody, instanceOfAddStudentRequestBody } from '../data/
 import { instanceOfRegisterStudentRequestBody, RegisterStudentRequestBody } from '../data/registerStudentRequest';
 import { instanceOfAddSocioeconomicStudyRequestBody, AddSocioeconomicRequestBody } from '../data/addSocioeconomicStudy';
 import connection from '../db/connection';
-import { verifyAdmin, verifyLoggedIn, verifyUser } from '../middlewares/authMiddleware';
+import { verifyLoggedIn, verifyTeacher, verifyUser } from '../middlewares/authMiddleware';
 import { getNextRegistrationNumber } from '../util/sql';
 import CustomServer from '../server/server';
 import { Student } from '../data/student';
@@ -16,7 +16,7 @@ import { instanceOfEditStudentRequestBody } from '../data/editStudentRequest';
 
 const students = express();
 
-students.get('/students', verifyLoggedIn, verifyUser, (request: Request, response: Response) => {
+students.get('/students', verifyLoggedIn, verifyTeacher, (request: Request, response: Response) => {
 
   return response.status(200).json({
     requestStatus: 'SUCCESS',
@@ -42,7 +42,7 @@ students.get('/students', verifyLoggedIn, verifyUser, (request: Request, respons
   // });
 });
 
-students.get('/student/:id', verifyLoggedIn, verifyUser, (request: Request, response: Response) => {
+students.get('/student/:id', verifyLoggedIn, verifyTeacher, (request: Request, response: Response) => {
   // return response.status(500).json({});
 
   return response.status(200).json({
@@ -68,7 +68,7 @@ students.get('/student/:id', verifyLoggedIn, verifyUser, (request: Request, resp
   // });
 });
 
-students.get('/student/documents/:id', verifyLoggedIn, verifyUser, (request: Request, response: Response) => {
+students.get('/student/documents/:id', verifyLoggedIn, verifyTeacher, (request: Request, response: Response) => {
   // return response.status(500).json({});
 
   return response.status(200).json({
@@ -299,7 +299,7 @@ students.post('/student', verifyLoggedIn, async (request: Request, response: Res
 
 students.put('/student/:id', verifyLoggedIn, verifyUser, async (request: Request, response: Response) => {
   if (instanceOfEditStudentRequestBody(request.body)) {
-    const updatedInformation = request.body as AddStudentRequestBody;
+    const updatedInformation = request.body;
 
     const student = CustomServer.instance.getStudentById(Number.parseInt(request.params.id));
     if (student) {
@@ -309,6 +309,7 @@ students.put('/student/:id', verifyLoggedIn, verifyUser, async (request: Request
       updatedStudent.nombres = updatedInformation.nombreAlumno;
       updatedStudent.pApellido = updatedInformation.pApellido;
       updatedStudent.sApellido = updatedInformation.sApellido;
+      updatedStudent.estado = Number.parseInt(updatedInformation.estado);
       updatedStudent.fechaNac = `${updatedInformation.fechaNac}`;
       updatedStudent.CURP = updatedInformation.curp;
       updatedStudent.telefono = updatedInformation.telefono;
@@ -318,7 +319,7 @@ students.put('/student/:id', verifyLoggedIn, verifyUser, async (request: Request
       updatedStudent.informacion.grado = updatedInformation.grado;
       updatedStudent.informacion.grupo = updatedInformation.grupo;
 
-      const query = format('UPDATE alumnos SET nombres = ?, pApellido = ?, sApellido = ?, fechaNac = ?, CURP = ?, telefono = ?, informacion = ? WHERE id = ?', [updatedStudent.nombres, updatedStudent.pApellido, updatedStudent.sApellido, updatedStudent.fechaNac, updatedStudent.CURP, updatedStudent.telefono, JSON.stringify(updatedStudent.informacion), student.id]);
+      const query = format('UPDATE alumnos SET nombres = ?, pApellido = ?, sApellido = ?, fechaNac = ?, CURP = ?, telefono = ?, estado = ?, informacion = ? WHERE id = ?', [updatedStudent.nombres, updatedStudent.pApellido, updatedStudent.sApellido, updatedStudent.fechaNac, updatedStudent.CURP, updatedStudent.telefono, updatedStudent.estado, JSON.stringify(updatedStudent.informacion), student.id]);
 
       connection.query(query, (error: MysqlError, result: any) => {
         if (error) {
@@ -374,7 +375,7 @@ students.put('/student/:id', verifyLoggedIn, verifyUser, async (request: Request
   }
 });
 
-students.put('/students/add-information/:id', verifyLoggedIn, verifyUser, async (request: Request, response: Response) => {
+students.put('/students/add-information/:id', verifyLoggedIn, verifyTeacher, async (request: Request, response: Response) => {
 
   if (instanceOfAddInformationRequestBody(request.body)) {
     connection.query(format('SELECT * FROM alumnos WHERE id = ?', [request.params.id]), (error: MysqlError, result: any) => {
@@ -457,7 +458,7 @@ students.put('/students/add-information/:id', verifyLoggedIn, verifyUser, async 
   }
 });
 
-students.put('/students/add-soc-study/:id', verifyLoggedIn, verifyAdmin, async (request: Request, response: Response) => {
+students.put('/students/add-soc-study/:id', verifyLoggedIn, verifyTeacher, async (request: Request, response: Response) => {
   if (instanceOfAddSocioeconomicStudyRequestBody(request.body)) {
     const student = CustomServer.instance.getStudentById(Number.parseInt(request.params.id));
     const body = request.body;
@@ -539,7 +540,7 @@ students.put('/students/add-soc-study/:id', verifyLoggedIn, verifyAdmin, async (
   }
 });
 
-students.delete('/students/:id', verifyLoggedIn, verifyAdmin, (request: Request, response: Response) => {
+students.delete('/students/:id', verifyLoggedIn, verifyUser, (request: Request, response: Response) => {
 
   connection.query(format('UPDATE alumnos SET estado = 1 WHERE id = ?', [request.params.id]), (error: MysqlError, result: any) => {
     if (error) {
@@ -569,6 +570,47 @@ students.delete('/students/:id', verifyLoggedIn, verifyAdmin, (request: Request,
       });
     }
   });
+});
+
+students.delete('/students', verifyLoggedIn, verifyUser, async (request: Request, response: Response) => {
+  const ids = request.body.ids;
+  if (ids && Array.isArray(ids)) {
+    ids.sort((a: number, b: number) => a - b);
+
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i];
+
+      try {
+        await connection.query(format('UPDATE alumnos SET estado = 1 WHERE id = ?', [id]));
+        
+        const studentIndex = CustomServer.instance.getStudentIndexById(id);
+        CustomServer.instance.getStudents()[studentIndex].estado = 1;
+      } catch (error: any) {
+        return response.status(500).json({
+          requestStatus: 'ERROR',
+          deleteStatusCode: 1,
+          error: {
+            message: 'Internal server error'
+          }
+        });
+      }
+    }
+
+    CustomServer.instance.ioServer.emit('remove-elements', { type: 0, list: CustomServer.instance.getStudents() });
+
+    return response.status(200).json({
+      requestStatus: 'SUCCESS',
+      deleteStatusCode: 0
+    });
+  } else {
+    return response.status(400).json({
+      requestStatus: 'ERROR',
+      deleteStatusCode: 1,
+      error: {
+        message: 'Invalid request body'
+      }
+    });
+  }
 });
 
 export default students;

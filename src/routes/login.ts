@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 
 import connection from '../db/connection';
 import { User } from '../data/user';
+import { verifyAdmin, verifyLoggedIn } from '../middlewares/authMiddleware';
 
 const login = express();
 
@@ -94,7 +95,7 @@ login.post('/confirm_code', async (request: Request, response: Response) => {
     });
   }
 
-  const query = format('SELECT * FROM `codigos`', []);
+  const query = format('SELECT * FROM `codigos` ORDER BY id DESC', []);
 
   connection.query(query, async (error: MysqlError, result: any[]) => {
     if (error) {

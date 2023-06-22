@@ -1,12 +1,12 @@
 import express, { Request, Response } from 'express';
 import { format, MysqlError } from 'mysql';
 import connection from '../db/connection';
-import { verifyAdmin, verifyLoggedIn, verifyUser } from '../middlewares/authMiddleware';
+import { verifyLoggedIn, verifyTeacher, verifyUser } from '../middlewares/authMiddleware';
 import CustomServer from '../server/server';
 
 const documents = express();
 
-documents.get('/documents', verifyLoggedIn, verifyUser, (request: Request, response: Response) => {
+documents.get('/documents', verifyLoggedIn, verifyTeacher, (request: Request, response: Response) => {
 
 	return response.status(200).json({
 		requestStatus: 'SUCCESS',
@@ -33,7 +33,7 @@ documents.get('/documents', verifyLoggedIn, verifyUser, (request: Request, respo
 	// });
 });
 
-documents.delete('/document/:id', verifyLoggedIn, verifyUser, async (request: Request, response: Response) => {
+documents.delete('/document/:id', verifyLoggedIn, verifyTeacher, async (request: Request, response: Response) => {
 	const id = request.params.id;
 
 	if (id) {

@@ -241,8 +241,6 @@ users.delete('/users/', verifyLoggedIn, verifyAdmin, async (request: Request, re
   if (ids && Array.isArray(ids)) {
     ids.sort((a: number, b: number) => a - b);
 
-    const indexes: Number[] = [];
-
     for (let i = 0; i < ids.length; i++) {
       const id = ids[i];
 
